@@ -26,7 +26,5 @@ module_exit(mod_exit);
 #define NAME_NODE "mod_hello"
 #define LEN_MSG 160
 static char buf_msg[LEN_MSG] = "Hello from module!\n";
-/* The buffer used to store character */
-static char procfs_buffer[LEN_MSG];
 
 #endif /* COMMON_H */
