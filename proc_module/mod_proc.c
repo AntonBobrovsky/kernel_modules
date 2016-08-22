@@ -1,4 +1,4 @@
-#include "./include/common.h"
+#include "../include/common.h"
 
 static int proc_open(struct inode *inode, struct  file *file);
 static ssize_t proc_read(struct file *file, char __user *buffer, size_t size, loff_t *data);
@@ -20,6 +20,7 @@ static int __init mod_init(void) {
         return -ENOMEM;
     }
     printk( KERN_INFO "/proc module 'hello' : success!\n");
+
     return 0;
 }
 
@@ -30,13 +31,17 @@ static void __exit mod_exit(void) {
 
 static int proc_open(struct inode *inode, struct  file *file) {
     printk(KERN_ALERT "open_proc: open file\n");
+    
 	return 0;
 }
 
 /* This function is called then the /proc file is read */
 static ssize_t proc_read(struct file *file, char __user *buffer, size_t size, loff_t *data) {
-	printk(KERN_INFO "procfile_read (/proc/%s) called\n", NAME_NODE);
-	copy_to_user(buffer, buf_msg, strlen(buf_msg));
+    int len = strlen(buf_msg);
+
+    printk(KERN_INFO "procfile_read (/proc/%s) called\n", NAME_NODE);
+    if(copy_to_user(buffer, buf_msg, len))
+        return -EINVAL;
 
     return strlen(buf_msg);
 }
@@ -45,12 +50,11 @@ static ssize_t proc_read(struct file *file, char __user *buffer, size_t size, lo
 static ssize_t proc_write(struct file *file, const char __user *buffer, size_t size, loff_t *data) {
     /* The buffer used to store character */
     static char procfs_buffer[LEN_MSG];
-
     /* write data to the buffer */
     if (copy_from_user(procfs_buffer, buffer, LEN_MSG)) {
         return -EFAULT;
     }
-
     printk(KERN_ALERT "write message: %s\n", procfs_buffer);
+
     return 0;
 }

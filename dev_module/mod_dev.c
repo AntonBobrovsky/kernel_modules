@@ -1,4 +1,4 @@
-#include "./include/common.h"
+#include "../include/common.h"
 
 static int device_open(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
@@ -44,14 +44,17 @@ static void __exit mod_exit(void) {
 
 /* Called when a process tries to open the device file. */
 static int device_open(struct inode *inode, struct file *file) {
-	if (Device_Open) return -EBUSY;
+	if (Device_Open)
+        return -EBUSY;
 	Device_Open++;
+
 	return 0;
 }
 
 /* Called when a process closes the device file. */
 static int device_release(struct inode *inode, struct file *file) {
 	Device_Open--;
+
 	return 0;
 }
 
@@ -60,14 +63,16 @@ static ssize_t device_read(struct file *filp, char __user *buffer, size_t length
     int len = strlen(buf_msg);
     printk(KERN_INFO "=== read : %d\n", length);
 
-    if(length < len) return -EINVAL;
+    if(length < len)
+        return -EINVAL;
 
     if(*offset != 0) {
         printk( KERN_INFO "=== read return : 0\n" );  // EOF
         return 0;
     }
 
-    if(copy_to_user(buffer, buf_msg, len)) return -EINVAL;
+    if(copy_to_user(buffer, buf_msg, len))
+        return -EINVAL;
 
     *offset = len;
     printk(KERN_INFO "=== read return : %d\n", len);
@@ -76,23 +81,22 @@ static ssize_t device_read(struct file *filp, char __user *buffer, size_t length
 }
 
 /* Called when a process writes to dev file: echo "hi" > /dev/hello */
-static ssize_t device_write(struct file *filp, const char *buffer, size_t len, loff_t * off)
+static ssize_t device_write(struct file *filp, const char *buffer, size_t length, loff_t * offset)
 {
-	// char *msg_from_user;
-    //
-    // msg_from_user = kmalloc(len, GFP_KERNEL);
-    //
-    // if (!msg_from_user){
-    //     printk(KERN_ERR "FAILED kmalloc\n");
-    //     return -1;
-    // }
-    // if (!strncpy_from_user(msg_from_user, buffer, len)){
-    //     printk(KERN_ERR "FAILED strncpy_from_user\n");
-    //     return -1;
-    // }
-    // printk(KERN_ALERT "User write to file: %s\n", msg_from_user);
-    // kfree(msg_from_user);
-    printk(KERN_INFO "NOT WRITE !\n");
-    return -EINVAL;
-    // return 0;
+	char *msg_from_user;
+
+    msg_from_user = kmalloc(length, GFP_KERNEL);
+
+    if (!msg_from_user){
+        printk(KERN_ERR "FAILED kmalloc\n");
+        return -1;
+    }
+    if (copy_from_user(msg_from_user, buffer, length)){
+        printk(KERN_ERR "FAILED strncpy_from_user\n");
+        return -1;
+    }
+    printk(KERN_INFO "User write to file");
+    kfree(msg_from_user);
+
+    return 0;
 }
