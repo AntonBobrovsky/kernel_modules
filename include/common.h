@@ -12,6 +12,12 @@
 #include <linux/seq_file.h>
 #include <linux/cdev.h>
 #include <linux/slab.h>
+#include <linux/parport.h>
+#include <linux/pci.h>
+#include <linux/version.h>
+#include <linux/kobject.h>
+#include <linux/sysfs.h>
+#include <linux/string.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Anton Bobrovsky <ileon009@gmail.com>");
